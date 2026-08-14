@@ -7,12 +7,9 @@ def get_mitre_software_info(software_name):
     """
     print(f"\n🔍 Buscando información sobre '{software_name}' en el contexto de MITRE ATT&CK...")
     
-    # Aquí puedes integrar la consulta a la API oficial de MITRE ATT&CK STIX/TAXII o una búsqueda estructurada.
-    # Como estructura base para tu generador de alertas, simularemos y estructuraremos la respuesta de ejemplo:
-    
     # Estructura estandarizada requerida para el reporte HTML y PDF
     report_data = {
-        "title": f情报 Alerta CTI: Análisis de {software_name.capitalize()}",
+        "title": f"🚨 Alerta CTI: Análisis de {software_name.capitalize()}",
         "threat_name": software_name.capitalize(),
         "description": f"Se ha detectado actividad reciente o vectores de ataque asociados al software/amenaza {software_name}. Este componente interactúa con múltiples tácticas del framework MITRE ATT&CK.",
         "tactics": [
