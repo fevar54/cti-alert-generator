@@ -24,8 +24,12 @@ def generate_html_alert(data):
     tactics_html = ""
     for tactic in data.get("tactics", []):
         tech_items = ""
-        for tech in ttp_item := tactic.get("techniques", []):
-            tech_items += f"<li><b>{tech_item['id']} - {tech_item['name']}</b>: {tech_item['description']}</li>" if isinstance(tech_item, dict) else f"<li>{tech_item}</li>"
+        techniques = tactic.get("techniques", [])
+        for tech in techniques:
+            if isinstance(tech, dict):
+                tech_items += f"<li><b>{tech.get('id')} - {tech.get('name')}</b>: {tech.get('description')}</li>"
+            else:
+                tech_items += f"<li>{tech}</li>"
         
         tactics_html += f"""
             <div style="margin-bottom: 10px;">
