@@ -2,25 +2,28 @@ from datetime import datetime
 
 def generate_html_alert(data):
     """
-    Genera el contenido HTML estructurado para la alerta CTI utilizando la plantilla oficial de MNEMO.
+    Genera el contenido HTML estructurado para la alerta CTI (Preventive/Campañas) 
+    utilizando la plantilla oficial del SOC de MNEMO.
     """
-    # Obtener valores con respaldos predeterminados si faltan en el diccionario
+    # Obtener valores con respaldos predeterminados
     titulo = data.get('title', 'Cyber Security Warning')
     fecha = data.get('date', datetime.now().strftime('%Y-%m-%d %H:%M'))
     tlp = data.get('tlp', 'TLP:AMBER')
-    cve = data.get('cve', 'N/A')
-    cvss = data.get('cvss', 'N/A')
-    vector = data.get('vector', 'Red/Endpoint')
-    control = data.get('control', 'Pendiente')
+    prioridad = data.get('priority', 'Media')
+    subcategoria = data.get('subcategory', 'Malware / Campaña')
+    tipo_alerta = data.get('alert_type', 'Preventiva')
+    sectores = data.get('sectors', 'General')
     
-    # Descripción
-    descripcion = data.get('description', 'Sin descripción disponible.')
+    # Threat Information
+    numero_ioc = data.get('ioc_count', '0')
+    pap = data.get('pap', 'PAP:AMBER')
+    familia = data.get('family', 'N/A')
+    adversary = data.get('adversary', 'Desconocido')
     
-    # Productos afectados
-    productos_list = data.get('affected_products', ['Sistemas y software genéricos asociados a la amenaza.'])
-    productos_html = "".join([f"<li>{prod}</li>" for prod in productos_list])
+    # Descripción / Síntesis
+    sintesis = data.get('description', 'Sin descripción disponible.')
     
-    # Referencias MITRE / TTPs
+    # TTPs / Técnicas
     tactics_html = ""
     for tactic in data.get("tactics", []):
         tech_items = ""
@@ -42,265 +45,189 @@ def generate_html_alert(data):
     if not tactics_html:
         tactics_html = "<span>No se especificaron tácticas detalladas en este reporte.</span>"
 
-    # Mitigaciones ATT&CK
+    # Mitigaciones
     mitigations_list = data.get('mitigations', [
-        "Monitorear indicadores de compromiso (IoCs) en el perímetro.",
-        "Aplicar políticas de restricción de ejecución en endpoints."
+        "Monitorear indicadores de compromiso (IoCs) en el perímetro y endpoints.",
+        "Aplicar políticas de restricción de ejecución en sistemas críticos."
     ])
     mitigations_html = "".join([f"<li>{mit}</li>" for mit in mitigations_list])
 
-    # Recomendaciones
+    # Impacto y recomendaciones
     recs_list = data.get('recommendations', [
-        "Actualizar los sistemas afectados a los parches de seguridad más recientes.",
-        "Revisar los registros del SIEM ante patrones de comportamiento similares."
+        "Actualizar las contramedidas y reglas de detección en el SIEM.",
+        "Revisar los registros históricos ante patrones de comportamiento similares."
     ])
     recs_html = "".join([f"<li>{rec}</li>" for rec in recs_list])
 
-    # Referencias generales
+    # Referencias
     refs_list = data.get('references', [
-        "https://attack.mitre.org/",
-        "https://cve.mitre.org/"
+        "https://attack.mitre.org/"
     ])
     refs_html = "".join([f'<li><a href="{ref}" target="_blank" style="color: #3498db;">{ref}</a></li>' for ref in refs_list])
 
-    # Estructura de la plantilla HTML oficial integrada
+    # IoCs archivo o lista
+    iocs_info = data.get('iocs_filename', 'Indicadores de compromiso incluidos en el adjunto o plataforma de gestión.')
+
+    # Plantilla HTML oficial integrada
     html_content = f"""
-<!DOCTYPE html>
-<html lang="es">
-  <body style="margin:0;background:rgb(238,238,238)">
-    <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0" style="background:rgb(238,238,238);margin:0;padding:10px 0">
+<html>
+  <body style="margin:0;background:rgb(238,238,238);font-family:Arial,sans-serif">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:rgb(238,238,238);padding:10px 0">
       <tr>
         <td align="center">
-          <div>
-            <table width="70%" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;font-family:Arial,sans-serif;border-collapse:collapse;background:rgb(246,247,246)">
-              <tr>
-                <td valign="top" align="center" style="background:rgb(246,247,246)">
-                  <img src="https://mnemo.com/wp-content/uploads/header_CTI-scaled.png" width="100%" alt="Header">
-                </td>
-              </tr>
+          <table width="70%" cellpadding="0" cellspacing="0" border="0" style="background:rgb(246,247,246);border-collapse:collapse">
+            
+            <!-- Header imagen -->
+            <tr>
+              <td align="center" style="background:rgb(246,247,246);padding:10px 0">
+                <img src="https://mnemo.com/wp-content/uploads/header_CTI-scaled.png" width="90%" alt="Header">
+              </td>
+            </tr>
 
-              <tr>
-                <td colspan="2" style="background:rgb(250,83,35);color:#fff;padding:12px 20px;font-weight:bold">
-                  <span style="font-size:15pt">Cyber Security Warning - Early</span>
-                </td>
-              </tr>
+            <!-- Título -->
+            <tr>
+              <td style="background:rgb(4,71,103);color:#fff;padding:12px 20px;font-weight:bold;font-size:15pt">
+                Cyber Security Warning - Preventive
+              </td>
+            </tr>
 
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:#fff">
-                      <tr>
-                        <td style="border-bottom:1px solid rgb(224,225,227);padding:12px 10px 12px 15px">
-                          <span style="color:rgb(51,51,51);font-size:13pt;font-weight:bold">{titulo}</span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
+            <!-- Subject -->
+            <tr>
+              <td style="background:#fff;border-bottom:1px solid rgb(224,225,227);padding:12px 10px 12px 15px">
+                <span style="color:rgb(51,51,51);font-size:13pt;font-weight:bold">&nbsp;&nbsp;{titulo}</span>
+              </td>
+            </tr>
 
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:#fff">
-                      <tr>
-                        <td colspan="2" style="padding:10px 13px;width:20%">
-                          <span style="color:#000;font-size:12pt"><b>FECHA:</b></span>
-                        </td>
-                        <td colspan="2" style="padding:10px 13px;width:40%">
-                          <span style="color:#000;font-size:12pt">{fecha}</span>
-                        </td>
-                        <td colspan="2" style="padding:10px 13px;width:20%">
-                          <span style="color:#000;font-size:12pt"><b>TLP:</b></span>
-                        </td>
-                        <td colspan="2" style="padding:10px 13px;width:20%">
-                          <span style="color:#000;font-size:12pt">{tlp}</span>
-                        </td>
-                      </tr>
+            <!-- Metadatos -->
+            <tr>
+              <td style="background:#fff;padding:10px 0">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse">
+                  <tr>
+                    <td style="padding:10px 13px;width:20%">&nbsp;&nbsp;<b>Fecha:</b></td>
+                    <td style="padding:10px 13px;width:30%">{fecha}&nbsp;&nbsp;</td>
+                    <td style="padding:10px 13px;width:20%">&nbsp;&nbsp;<b>TLP:</b></td>
+                    <td style="padding:10px 13px;width:30%">{tlp}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:10px 13px">&nbsp;&nbsp;<b>Criticidad:</b></td>
+                    <td style="padding:10px 13px">{prioridad}&nbsp;&nbsp;</td>
+                    <td style="padding:10px 13px">&nbsp;&nbsp;<b>Taxonomía:</b></td>
+                    <td style="padding:10px 13px">{subcategoria}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:10px 13px">&nbsp;&nbsp;<b>Tipo de alerta:</b></td>
+                    <td style="padding:10px 13px">{tipo_alerta}&nbsp;&nbsp;</td>
+                    <td style="padding:10px 13px">&nbsp;&nbsp;<b>Sectores:</b></td>
+                    <td style="padding:10px 13px">{sectores}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
 
-                      <tr>
-                        <td colspan="2" style="padding:10px 13px;width:20%">
-                          <span style="color:#000;font-size:12pt"><b>Número de CVE:</b></span>
-                        </td>
-                        <td colspan="2" style="padding:10px 13px;width:40%">
-                          <span style="color:#000;font-size:12pt">{cve}</span>
-                        </td>
-                        <td colspan="2" style="padding:10px 13px;width:20%">
-                          <span style="color:#000;font-size:12pt"><b>Top CVSS:</b></span>
-                        </td>
-                        <td colspan="2" style="padding:10px 13px;width:20%">
-                          <span style="color:#000;font-size:12pt">{cvss}</span>
-                        </td>
-                      </tr>
+            <!-- Threat Information -->
+            <tr>
+              <td style="background:rgb(4,70,102);color:#fff;padding:10px 13px;font-weight:bold">&nbsp;&nbsp;Threat Information</td>
+            </tr>
+            <tr>
+              <td style="background:#fff;padding:10px 0">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse">
+                  <tr>
+                    <td style="padding:10px 13px;width:20%">&nbsp;&nbsp;<b>Número de IoCs:</b></td>
+                    <td style="padding:10px 13px;width:30%">{numero_ioc}&nbsp;&nbsp;</td>
+                    <td style="padding:10px 13px;width:20%">&nbsp;&nbsp;<b>PAP:</b></td>
+                    <td style="padding:10px 13px;width:30%">{pap}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:10px 13px">&nbsp;&nbsp;<b>Familia:</b></td>
+                    <td style="padding:10px 13px">{familia}&nbsp;&nbsp;</td>
+                    <td style="padding:10px 13px">&nbsp;&nbsp;<b>Adversario:</b></td>
+                    <td style="padding:10px 13px">{adversary}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
 
-                      <tr>
-                        <td colspan="2" style="padding:10px 13px;width:20%">
-                          <span style="color:#000;font-size:12pt"><b>Vector de ataque:</b></span>
-                        </td>
-                        <td colspan="2" style="padding:10px 13px;width:40%">
-                          <span style="color:#000;font-size:12pt">{vector}</span>
-                        </td>
-                        <td colspan="2" style="padding:10px 13px;width:20%">
-                          <span style="color:#000;font-size:12pt"><b>Control comp:</b></span>
-                        </td>
-                        <td colspan="2" style="padding:10px 13px;width:20%">
-                          <span style="color:#000;font-size:12pt">{control}</span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
+            <!-- Síntesis -->
+            <tr>
+              <td style="background:rgb(4,70,102);color:#fff;padding:10px 13px;font-weight:bold">&nbsp;&nbsp;Síntesis</td>
+            </tr>
+            <tr>
+              <td style="background:#fff;padding:10px 20px;color:rgb(51,51,51);font-size:11pt">
+                {sintesis}
+              </td>
+            </tr>
 
-              <tr>
-                <td colspan="2" style="background:rgb(73,74,79);color:#fff;padding:10px 13px;font-weight:bold"> Descripción</td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:#fff">
-                      <tr>
-                        <td style="padding:10px 20px">
-                          <span style="color:rgb(51,51,51);font-size:11pt">{descripcion}</span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
+            <!-- TTPs -->
+            <tr>
+              <td style="background:rgb(4,70,102);color:#fff;padding:10px 13px;font-weight:bold">&nbsp;&nbsp;Técnicas y tácticas identificadas</td>
+            </tr>
+            <tr>
+              <td style="background:#fff;padding:10px 20px;color:rgb(51,51,51);font-size:11pt">
+                {tactics_html}
+              </td>
+            </tr>
 
-              <tr>
-                <td colspan="2" style="background:rgb(73,74,79);color:#fff;padding:10px 13px;font-weight:bold"> Productos afectados</td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="10" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:#fff">
-                      <tr>
-                        <td style="padding:10px 20px">
-                          <span style="color:rgb(51,51,51);font-size:11pt">
-                            <ul style="margin:0; padding-left:20px;">{productos_html}</ul>
-                          </span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
+            <!-- Mitigaciones -->
+            <tr>
+              <td style="background:rgb(4,70,102);color:#fff;padding:10px 13px;font-weight:bold">&nbsp;&nbsp;Mitigaciones</td>
+            </tr>
+            <tr>
+              <td style="background:#fff;padding:10px 20px;color:rgb(51,51,51);font-size:11pt">
+                <ul style="margin:0; padding-left:20px;">{mitigations_html}</ul>
+              </td>
+            </tr>
 
-              <tr>
-                <td colspan="2" style="background:rgb(73,74,79);color:#fff;padding:10px 13px;font-weight:bold"> Referencias Mitre</td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="10" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:#fff">
-                      <tr>
-                        <td style="padding:10px 20px">
-                          <span style="color:rgb(51,51,51);font-size:11pt">{tactics_html}</span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
+            <!-- Impacto y recomendaciones -->
+            <tr>
+              <td style="background:rgb(4,70,102);color:#fff;padding:10px 13px;font-weight:bold">&nbsp;&nbsp;Impacto y recomendaciones</td>
+            </tr>
+            <tr>
+              <td style="background:#fff;padding:10px 20px;color:rgb(51,51,51);font-size:11pt">
+                <ul style="margin:0; padding-left:20px;">{recs_html}</ul>
+              </td>
+            </tr>
 
-              <tr>
-                <td colspan="2" style="background:rgb(73,74,79);color:#fff;padding:10px 13px;font-weight:bold"> Mitigaciones ATT&CK</td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="10" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:#fff">
-                      <tr>
-                        <td style="padding:10px 20px">
-                          <span style="color:rgb(51,51,51);font-size:11pt">
-                            <ul style="margin:0; padding-left:20px;">{mitigations_html}</ul>
-                          </span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
+            <!-- Referencias -->
+            <tr>
+              <td style="background:rgb(4,70,102);color:#fff;padding:10px 13px;font-weight:bold">&nbsp;&nbsp;Referencias</td>
+            </tr>
+            <tr>
+              <td style="background:#fff;padding:10px 20px;color:rgb(51,51,51);font-size:11pt">
+                <ul style="margin:0; padding-left:20px;">{refs_html}</ul>
+              </td>
+            </tr>
 
-              <tr>
-                <td colspan="2" style="background:rgb(73,74,79);color:#fff;padding:10px 13px;font-weight:bold"> Recomendaciones</td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:#fff">
-                      <tr>
-                        <td style="padding:10px 20px">
-                          <span style="color:rgb(51,51,51);font-size:11pt">
-                            <ul style="margin:0; padding-left:20px;">{recs_html}</ul>
-                          </span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
+            <!-- IoCs -->
+            <tr>
+              <td style="background:rgb(4,70,102);color:#fff;padding:10px 13px;font-weight:bold">&nbsp;&nbsp;Indicadores de compromiso</td>
+            </tr>
+            <tr>
+              <td style="background:#fff;padding:10px 20px;color:rgb(51,51,51);font-size:11pt">
+                {iocs_info}
+              </td>
+            </tr>
 
-              <tr>
-                <td colspan="2" style="background:rgb(73,74,79);color:#fff;padding:10px 13px;font-weight:bold"> Referencias</td>
-              </tr>
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="10" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:#fff">
-                      <tr>
-                        <td style="padding:10px 20px">
-                          <span style="color:rgb(51,51,51);font-size:11pt">
-                            <ul style="margin:0; padding-left:20px;">{refs_html}</ul>
-                          </span>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
+            <!-- Firma -->
+            <tr>
+              <td style="background:#fff;padding:18px 13px;text-align:center">
+                <div style="color:#161516">_______________________________________</div>
+                <div style="margin-top:10px">
+                  <img src="https://mnemo.com/wp-content/uploads/firma_CTI.png" width="90%" alt="Firma">
+                </div>
+              </td>
+            </tr>
 
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:#fff">
-                      <tr>
-                        <td colspan="2" style="padding:10px 13px;width:50%;text-align:center">
-                          <div style="color:#161516">_______________________________________</div>
-                          <p style="margin:10px 0 0">
-                            <img src="https://mnemo.com/wp-content/uploads/firma_CTI.png" width="90%" alt="Firma">
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
+            <!-- Disclaimer -->
+            <tr>
+              <td style="background:rgb(205,205,204);padding:12px 20px;color:#000;font-size:9pt;line-height:1.3">
+                <b style="color:rgb(250,83,35)">Disclaimer:</b> La información suministrada es fruto del análisis e investigación del equipo de Cyber Threat Intelligence, se debe tratar y gestionar según los criterios establecidos en el TLP. Tenga en cuenta la posibilidad de que algún indicador o dato pueda identificarse posteriormente como falso positivo o falso negativo.
+                <div style="text-align:center;margin-top:8px">
+                  <b>Si no es necesario, no imprimas este correo.</b>
+                </div>
+              </td>
+            </tr>
 
-              <tr>
-                <td>
-                  <div style="background:rgb(246,247,246)">
-                    <table width="100%" align="center" cellpadding="10" cellspacing="0" border="0" style="margin:0 auto;border-collapse:collapse;background:rgb(205,205,204)">
-                      <tr>
-                        <td style="padding:12px 20px">
-                          <span style="color:rgb(250,83,35);font-size:9pt"><b>Disclaimer:</b></span>
-                          <span style="color:#000;font-size:9pt">
-                            La información suministrada es fruto del análisis e investigación del equipo de Cyber Threat Intelligence, se debe tratar y gestionar según los criterios establecidos en el TLP. Tenga en cuenta la posibilidad de que algún indicador o dato pueda identificarse posteriormente como falso positivo o falso negativo.
-                          </span>
-                          <div style="text-align:center;margin-top:8px">
-                            <b><span style="color:#000;font-size:9pt">Si no es necesario, no imprimas este correo.</span></b>
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-                </td>
-              </tr>
-
-            </table>
-          </div>
+          </table>
         </td>
       </tr>
     </table>
